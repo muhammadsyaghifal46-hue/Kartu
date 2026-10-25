@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poker Texas Hold'em Engine</title>
+  <title>Poker Texas Hold'em Indonesia</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -20,37 +20,40 @@
     .status-text { margin-top: 12px; font-size: 12px; color: #f1c40f; }
 
     #game-container { display: none; width: 100%; max-width: 800px; flex-direction: column; align-items: center; }
-    .table { background: #0e6251; border: 10px solid #5d4037; border-radius: 100px; width: 100%; height: 400px; position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 20px; box-shadow: inset 0 0 40px rgba(0,0,0,0.7); }
+    .table { background: #0e6251; border: 12px solid #5d4037; border-radius: 100px; width: 100%; height: 430px; position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 20px; box-shadow: inset 0 0 50px rgba(0,0,0,0.7); }
     
-    .pot-container { background: rgba(0,0,0,0.6); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #f1c40f; border: 1px solid #f39c12; }
-    .community-cards { display: flex; gap: 6px; margin-top: 10px; min-height: 65px; }
+    .pot-container { background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px; font-size: 16px; font-weight: bold; color: #f1c40f; border: 2px solid #f39c12; }
+    .community-cards { display: flex; gap: 8px; margin-top: 12px; min-height: 70px; align-items: center; justify-content: center; }
     
-    .player-area { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .player-info { background: rgba(0,0,0,0.75); padding: 4px 12px; border-radius: 12px; font-size: 12px; border: 1px solid #444; }
-    .player-info.active { border-color: #f1c40f; box-shadow: 0 0 8px #f1c40f; }
-    .cards { display: flex; gap: 6px; }
+    .player-area { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .player-info { background: rgba(0,0,0,0.8); padding: 6px 14px; border-radius: 12px; font-size: 13px; border: 1px solid #444; }
+    .player-info.active { border-color: #f1c40f; box-shadow: 0 0 12px #f1c40f; }
+    .cards { display: flex; gap: 8px; }
     
-    .card { width: 42px; height: 60px; background: white; border-radius: 4px; color: black; display: flex; flex-direction: column; justify-content: space-between; padding: 3px; font-weight: bold; font-size: 11px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); position: relative; }
+    .card { width: 48px; height: 68px; background: white; border-radius: 6px; color: black; display: flex; flex-direction: column; justify-content: space-between; padding: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 3px 6px rgba(0,0,0,0.5); position: relative; }
     .card.red { color: #e74c3c; }
-    .card.back { background: #b22222; border: 1px solid white; background-image: repeating-linear-gradient(45deg, #a00 0, #a00 5px, #800 5px, #800 10px); }
-    .card .suit { font-size: 15px; align-self: center; }
+    .card.back { background: #b22222; border: 2px solid white; background-image: repeating-linear-gradient(45deg, #a00 0, #a00 5px, #800 5px, #800 10px); }
+    .card .suit { font-size: 18px; align-self: center; }
 
-    .controls { background: #1e1e1e; padding: 12px; border-radius: 8px; display: flex; gap: 8px; width: 100%; justify-content: center; align-items: center; margin-top: 10px; }
-    .controls input { width: 70px; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #000; color: #fff; text-align: center; }
-    .btn-action { padding: 8px 14px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
+    .controls { background: #1e1e1e; padding: 14px; border-radius: 10px; display: flex; gap: 8px; width: 100%; justify-content: center; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .controls input { width: 80px; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #000; color: #fff; text-align: center; }
+    .btn-action { padding: 10px 16px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 13px; }
     .btn-fold { background: #c0392b; }
     .btn-check { background: #7f8c8d; }
     .btn-call { background: #2980b9; }
     .btn-raise { background: #d35400; }
     .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
 
+    #winner-banner { display: none; background: rgba(241, 196, 15, 0.95); color: #000; padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 16px; position: absolute; top: 45%; box-shadow: 0 0 20px rgba(241, 196, 15, 0.8); text-align: center; z-index: 10; }
+
     #log { width: 100%; background: #000; border-radius: 6px; padding: 8px; height: 75px; overflow-y: auto; font-size: 11px; color: #aaa; margin-top: 8px; border: 1px solid #333; }
   </style>
 </head>
 <body>
 
+  <!-- LOBBY DISPLAY -->
   <div id="lobby">
-    <h1>♠️ Texas Hold'em Poker ♠️</h1>
+    <h1>♠️ Poker Mabar Indo ♠️</h1>
     <div class="input-group">
       <label>Nama Kamu:</label>
       <input type="text" id="username" value="Pemain 1">
@@ -65,42 +68,45 @@
     <div class="status-text" id="status">Menghubungkan jaringan...</div>
   </div>
 
+  <!-- GAME DISPLAY -->
   <div id="game-container">
     <div class="table">
-      <!-- Opponent -->
+      <div id="winner-banner"></div>
+
+      <!-- Lawan (Atas) -->
       <div class="player-area">
         <div class="cards" id="opp-cards">
           <div class="card back"></div>
           <div class="card back"></div>
         </div>
         <div class="player-info" id="opp-info">
-          <span id="opp-name">Lawan</span> | Chips: $<span id="opp-chips">1000</span>
+          <span id="opp-name">Lawan</span> | Chip: $<span id="opp-chips">1000</span>
         </div>
       </div>
 
-      <!-- Center Table -->
+      <!-- Kartu Meja (Tengah) -->
       <div style="text-align: center;">
         <div class="pot-container">POT: $<span id="pot">0</span></div>
         <div class="community-cards" id="community-cards"></div>
       </div>
 
-      <!-- Local Player -->
+      <!-- Pemain Lokal (Bawah) -->
       <div class="player-area">
         <div class="player-info" id="my-info">
-          <span id="my-name">Kamu</span> | Chips: $<span id="my-chips">1000</span>
+          <span id="my-name">Kamu</span> | Chip: $<span id="my-chips">1000</span>
         </div>
         <div class="cards" id="my-cards"></div>
       </div>
     </div>
 
-    <!-- Controls -->
+    <!-- Tombol Aksi Bahasa Indonesia -->
     <div class="controls">
-      <button class="btn-action btn-fold" id="btn-fold" onclick="handleAction('fold')" disabled>Fold</button>
-      <button class="btn-action btn-check" id="btn-check" onclick="handleAction('check')" disabled>Check</button>
-      <button class="btn-action btn-call" id="btn-call" onclick="handleAction('call')" disabled>Call</button>
+      <button class="btn-action btn-fold" id="btn-fold" onclick="handleAction('fold')" disabled>Menyerah (Fold)</button>
+      <button class="btn-action btn-check" id="btn-check" onclick="handleAction('check')" disabled>Lewat (Check)</button>
+      <button class="btn-action btn-call" id="btn-call" onclick="handleAction('call')" disabled>Ikut (Call)</button>
       <input type="number" id="raise-amount" value="50" step="10" min="10">
-      <button class="btn-action btn-raise" id="btn-raise" onclick="handleAction('raise')" disabled>Raise</button>
-      <button class="btn btn-secondary" id="btn-start" style="width:auto; display:none;" onclick="startNewHand()">Mulai Kartu Baru</button>
+      <button class="btn-action btn-raise" id="btn-raise" onclick="handleAction('raise')" disabled>Naikkan Taruhan</button>
+      <button class="btn btn-secondary" id="btn-start" style="width:auto; display:none;" onclick="startNewHand()">Bagikan Kartu Baru</button>
     </div>
 
     <div id="log"></div>
@@ -110,12 +116,14 @@
     let isHost = false;
     let myName = "", oppName = "Lawan";
     let myChips = 1000, oppChips = 1000;
-    let pot = 0, currentBet = 0, myCurrentBet = 0;
-    let myHand = [], communityCards = [], deck = [];
+    let pot = 0, currentBet = 0, myCurrentBet = 0, oppCurrentBet = 0;
+    let myHand = [], oppHand = [], communityCards = [], deck = [];
     let isMyTurn = false;
+    let gameStage = 0; // 0: Preflop, 1: Flop (3 kartu), 2: Turn (4 kartu), 3: River (5 kartu)
 
     const suits = ['♠', '♥', '♦', '♣'];
     const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const rankValues = {'2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14};
 
     peer = new Peer();
     peer.on('open', id => {
@@ -150,7 +158,7 @@
         document.getElementById('lobby').style.display = 'none';
         document.getElementById('game-container').style.display = 'flex';
         sendData({ type: 'INIT', name: myName });
-        log("Tersambung! Selamat bermain.");
+        log("Tersambung dengan lawan!");
         if(isHost) document.getElementById('btn-start').style.display = 'inline-block';
       });
 
@@ -170,7 +178,7 @@
       let d = [];
       for(let s of suits) {
         for(let v of values) {
-          d.push({ suit: s, value: v, isRed: s === '♥' || s === '♦' });
+          d.push({ suit: s, value: v, isRed: s === '♥' || s === '♦', numVal: rankValues[v] });
         }
       }
       return d.sort(() => Math.random() - 0.5);
@@ -178,10 +186,13 @@
 
     function startNewHand() {
       if(!isHost) return;
+      document.getElementById('winner-banner').style.display = 'none';
       deck = createDeck();
       pot = 30;
       currentBet = 20;
       myCurrentBet = 10;
+      oppCurrentBet = 20;
+      gameStage = 0;
       
       const hostCards = [deck.pop(), deck.pop()];
       const clientCards = [deck.pop(), deck.pop()];
@@ -193,6 +204,7 @@
       sendData({
         type: 'START_HAND',
         clientCards: clientCards,
+        hostCards: hostCards,
         communityCards: communityCards,
         pot: pot,
         oppChips: myChips,
@@ -200,11 +212,13 @@
       });
 
       myHand = hostCards;
-      renderBoard([]);
+      oppHand = clientCards;
+      renderOpponentCards(false);
       renderMyCards(myHand);
+      renderBoard([]);
       updateUI();
       setTurn(true);
-      log("Ronde baru dimulai. Small & Big Blind dipasang!");
+      log("Kartu dibagikan! Kamu pasang Small Blind ($10), lawan Big Blind ($20).");
     }
 
     function handleIncomingData(data) {
@@ -216,17 +230,22 @@
           break;
 
         case 'START_HAND':
+          document.getElementById('winner-banner').style.display = 'none';
           myHand = data.clientCards;
+          oppHand = data.hostCards;
           communityCards = data.communityCards;
           pot = data.pot;
           myChips = data.myChips;
           oppChips = data.oppChips;
           myCurrentBet = 20;
+          oppCurrentBet = 10;
+          gameStage = 0;
           renderMyCards(myHand);
+          renderOpponentCards(false);
           renderBoard([]);
           updateUI();
           setTurn(false);
-          log("Ronde baru dimulai. Menunggu giliran lawan.");
+          log("Ronde dimulai! Menunggu aksi dari lawan.");
           break;
 
         case 'ACTION':
@@ -236,8 +255,7 @@
     }
 
     function renderMyCards(cards) {
-      const el = document.getElementById('my-cards');
-      el.innerHTML = cards.map(c => `
+      document.getElementById('my-cards').innerHTML = cards.map(c => `
         <div class="card ${c.isRed ? 'red' : ''}">
           <div>${c.value}</div>
           <div class="suit">${c.suit}</div>
@@ -246,9 +264,23 @@
       `).join('');
     }
 
+    function renderOpponentCards(showFace) {
+      const el = document.getElementById('opp-cards');
+      if(showFace && oppHand.length === 2) {
+        el.innerHTML = oppHand.map(c => `
+          <div class="card ${c.isRed ? 'red' : ''}">
+            <div>${c.value}</div>
+            <div class="suit">${c.suit}</div>
+            <div style="align-self:flex-end;">${c.value}</div>
+          </div>
+        `).join('');
+      } else {
+        el.innerHTML = `<div class="card back"></div><div class="card back"></div>`;
+      }
+    }
+
     function renderBoard(cards) {
-      const el = document.getElementById('community-cards');
-      el.innerHTML = cards.map(c => `
+      document.getElementById('community-cards').innerHTML = cards.map(c => `
         <div class="card ${c.isRed ? 'red' : ''}">
           <div>${c.value}</div>
           <div class="suit">${c.suit}</div>
@@ -266,46 +298,139 @@
     function setTurn(turn) {
       isMyTurn = turn;
       document.getElementById('btn-fold').disabled = !turn;
-      document.getElementById('btn-check').disabled = !turn;
-      document.getElementById('btn-call').disabled = !turn;
+      document.getElementById('btn-check').disabled = !turn || (currentBet > myCurrentBet);
+      document.getElementById('btn-call').disabled = !turn || (currentBet <= myCurrentBet);
       document.getElementById('btn-raise').disabled = !turn;
       
       document.getElementById('my-info').classList.toggle('active', turn);
       document.getElementById('opp-info').classList.toggle('active', !turn);
     }
 
+    function advanceStage() {
+      gameStage++;
+      myCurrentBet = 0;
+      oppCurrentBet = 0;
+      currentBet = 0;
+
+      if(gameStage === 1) {
+        renderBoard(communityCards.slice(0, 3));
+        log("--- KARTU MEJA (FLOP): 3 Kartu dibuka di tengah meja! ---");
+      } else if(gameStage === 2) {
+        renderBoard(communityCards.slice(0, 4));
+        log("--- KARTU MEJA (TURN): Kartu ke-4 dibuka! ---");
+      } else if(gameStage === 3) {
+        renderBoard(communityCards.slice(0, 5));
+        log("--- KARTU MEJA (RIVER): Kartu ke-5 terakhir dibuka! ---");
+      } else if(gameStage >= 4) {
+        showdown();
+      }
+    }
+
     function handleAction(action) {
       if(!isMyTurn) return;
       let amount = 0;
 
-      if(action === 'raise') {
+      if(action === 'fold') {
+        log("Kamu menyerah (Fold). Lawan memenangkan POT.");
+        oppChips += pot;
+        pot = 0;
+        updateUI();
+        sendData({ type: 'ACTION', action: 'fold' });
+        setTurn(false);
+        return;
+      } else if(action === 'raise') {
         amount = parseInt(document.getElementById('raise-amount').value);
         if(amount > myChips) return alert("Chip kamu tidak cukup!");
         myChips -= amount;
         pot += amount;
+        myCurrentBet += amount;
+        currentBet = myCurrentBet;
       } else if(action === 'call') {
         amount = currentBet - myCurrentBet;
-        if(amount > 0) {
-          if(amount > myChips) amount = myChips;
-          myChips -= amount;
-          pot += amount;
-        }
+        if(amount > myChips) amount = myChips;
+        myChips -= amount;
+        pot += amount;
+        myCurrentBet += amount;
       }
       
       updateUI();
       sendData({ type: 'ACTION', action: action, amount: amount });
-      setTurn(false);
+
+      if(myCurrentBet === oppCurrentBet) {
+        advanceStage();
+        setTurn(isHost);
+      } else {
+        setTurn(false);
+      }
       log(`Kamu melakukan: ${action.toUpperCase()}`);
     }
 
     function handleOpponentAction(data) {
       log(`${oppName} melakukan: ${data.action.toUpperCase()}`);
+
+      if(data.action === 'fold') {
+        log(`Lawan menyerah! Kamu menang $${pot}`);
+        myChips += pot;
+        pot = 0;
+        updateUI();
+        showBanner(`${myName} MENANG! (Lawan Fold)`);
+        setTurn(false);
+        return;
+      }
+
       if(data.amount > 0) {
         oppChips -= data.amount;
         pot += data.amount;
+        oppCurrentBet += data.amount;
+        if(oppCurrentBet > currentBet) currentBet = oppCurrentBet;
         updateUI();
       }
-      setTurn(true);
+
+      if(myCurrentBet === oppCurrentBet) {
+        advanceStage();
+        setTurn(isHost);
+      } else {
+        setTurn(true);
+      }
+    }
+
+    function evaluateHand(cards) {
+      let ranks = cards.map(c => c.numVal).sort((a,b) => b-a);
+      let isPair = ranks.some((val, idx) => ranks.indexOf(val) !== idx);
+      return { score: ranks[0], isPair: isPair };
+    }
+
+    function showdown() {
+      renderBoard(communityCards);
+      renderOpponentCards(true);
+
+      let myEval = evaluateHand([...myHand, ...communityCards]);
+      let oppEval = evaluateHand([...oppHand, ...communityCards]);
+
+      let winnerMsg = "";
+      if(myEval.score > oppEval.score) {
+        myChips += pot;
+        winnerMsg = `${myName} MENANG KARTU TERTINGGI! (+$${pot})`;
+      } else if(oppEval.score > myEval.score) {
+        oppChips += pot;
+        winnerMsg = `${oppName} MENANG KARTU TERTINGGI! (+$${pot})`;
+      } else {
+        myChips += pot / 2;
+        oppChips += pot / 2;
+        winnerMsg = "SERI (SPLIT POT)!";
+      }
+
+      pot = 0;
+      updateUI();
+      showBanner(winnerMsg);
+      log("SHOWDOWN: " + winnerMsg);
+      setTurn(false);
+    }
+
+    function showBanner(text) {
+      const b = document.getElementById('winner-banner');
+      b.innerText = text;
+      b.style.display = 'block';
     }
   </script>
 </body>
